@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tjfoc/gmsm/x509"
+	"github.com/trustasia-com/gmsm/x509"
 )
 
 var _ExpectRawContent = []byte("Hello World!")
