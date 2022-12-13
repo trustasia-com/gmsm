@@ -21,6 +21,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"encoding/pem"
 	"fmt"
 	"math/big"
 	"net"
@@ -447,4 +448,31 @@ func TestCreateRevocationList(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParese(t *testing.T) {
+	cert := `
+-----BEGIN CERTIFICATE-----
+MIIBzDCCAW+gAwIBAgIGAYUKpiN1MAwGCCqBHM9VAYN1BQAwSzELMAkGA1UEBhMC
+Q04xDjAMBgNVBAoTBUdNU1NMMRAwDgYDVQQLEwdQS0kvU00yMRowGAYDVQQDExFN
+aWRkbGVDQSBmb3IgVGVzdDAiGA8yMDIyMTIxMjE2MDAwMFoYDzIwMjMxMjEyMTYw
+MDAwWjAdMQswCQYDVQQGEwJDTjEOMAwGA1UEAxMFaGVsbG8wWTATBgcqhkjOPQIB
+BggqgRzPVQGCLQNCAATd6zP3CdliGzbtOvbksibg8csKYDX1chtqy0pNcOUdTtS6
+Rf4HX6NUERqvIkiO89oMbDcw3QMo3ZYQl8xJhjWco2cwZTAbBgNVHSMEFDASgBD5
+f1W0J5QzYqZWym/MXRr/MBkGA1UdDgQSBBCJAyejks8oxKOoVPctsXwvMBAGA1Ud
+EQQJMAeCBWhlbGxvMAkGA1UdEwQCMAAwDgYDVR0PAQH/BAQDAgA4MAwGCCqBHM9V
+AYN1BQADSQAwRgIhALUAoX6y34qHSFKd0qsxE4xsGInFKNx5pBEABKryiUNVAiEA
+wHOU0KXQ1UHjWzeH7UmSiEGcjfZ30XJOU+qvKeOepSA=
+-----END CERTIFICATE-----
+`
+	b, _ := pem.Decode([]byte(cert))
+	if b == nil {
+		fmt.Println("decode error")
+	}
+	c, err := ParseCertificate(b.Bytes)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//println(c.Signature)
+	fmt.Println(c)
 }

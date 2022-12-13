@@ -52,7 +52,7 @@ var (
 	oidAES128CBC = asn1.ObjectIdentifier{2, 16, 840, 1, 101, 3, 4, 1, 2}
 	oidAES256CBC = asn1.ObjectIdentifier{2, 16, 840, 1, 101, 3, 4, 1, 42}
 
-	oidSM2 = asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1}
+	oidSM2 = asn1.ObjectIdentifier{1, 2, 156, 10197, 1, 301}
 )
 
 // reference to https://www.rfc-editor.org/rfc/rfc5958.txt
