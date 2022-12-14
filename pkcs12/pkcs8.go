@@ -25,8 +25,9 @@ type pkcs8 struct { // Duplicated from x509 package
 }
 
 var ( // Duplicated from x509 package
-	oidPublicKeyRSA   = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 1}
-	oidPublicKeyECDSA = asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1}
+	oidPublicKeyRSA    = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 1}
+	oidPublicKeyECDSA  = asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1}
+	oidPublicKeySM2DSA = asn1.ObjectIdentifier{1, 2, 156, 10197, 1, 301}
 )
 
 var ( // Duplicated from x509 package
@@ -74,7 +75,8 @@ func ParsePKCS8PrivateKey(der []byte) (key interface{}, err error) {
 		return nil, err
 	}
 	switch {
-	case privKey.Algo.Algorithm.Equal(oidPublicKeyECDSA):
+	case privKey.Algo.Algorithm.Equal(oidPublicKeyECDSA),
+		privKey.Algo.Algorithm.Equal(oidPublicKeySM2DSA):
 		bytes := privKey.Algo.Parameters.FullBytes
 		namedCurveOID := new(asn1.ObjectIdentifier)
 		if _, err := asn1.Unmarshal(bytes, namedCurveOID); err != nil {
@@ -161,7 +163,7 @@ func marshalPKCS8PrivateKey(key interface{}) (der []byte, err error) {
 			return nil, errors.New("go-pkcs12: failed to embed EC private key in PKCS#8: " + err.Error())
 		}
 	case *sm2.PrivateKey:
-		privKey.Algo.Algorithm = oidPublicKeyECDSA
+		privKey.Algo.Algorithm = oidPublicKeySM2DSA
 		namedCurveOID, ok := oidFromNamedCurve(key.Curve)
 		if !ok {
 			return nil, errors.New("go-pkcs12: unknown elliptic curve")

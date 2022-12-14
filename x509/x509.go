@@ -114,7 +114,7 @@ func marshalPublicKey(pub interface{}) (publicKeyBytes []byte, publicKeyAlgorith
 		if !ok {
 			return nil, pkix.AlgorithmIdentifier{}, errors.New("x509: unsupported SM2 curve")
 		}
-		publicKeyAlgorithm.Algorithm = oidPublicKeyECDSA
+		publicKeyAlgorithm.Algorithm = oidPublicKeySM2DSA
 		var paramBytes []byte
 		paramBytes, err = asn1.Marshal(oid)
 		if err != nil {
@@ -623,6 +623,7 @@ var (
 	oidPublicKeyRSA     = asn1.ObjectIdentifier{1, 2, 840, 113549, 1, 1, 1}
 	oidPublicKeyDSA     = asn1.ObjectIdentifier{1, 2, 840, 10040, 4, 1}
 	oidPublicKeyECDSA   = asn1.ObjectIdentifier{1, 2, 840, 10045, 2, 1}
+	oidPublicKeySM2DSA  = asn1.ObjectIdentifier{1, 2, 156, 10197, 1, 301}
 	oidPublicKeyEd25519 = oidSignatureEd25519
 )
 
@@ -636,6 +637,8 @@ func getPublicKeyAlgorithmFromOID(oid asn1.ObjectIdentifier) PublicKeyAlgorithm 
 		return Ed25519
 	case oid.Equal(oidPublicKeyECDSA):
 		return ECDSA
+	case oid.Equal(oidPublicKeySM2DSA):
+		return SM2
 	}
 	return UnknownPublicKeyAlgorithm
 }
@@ -1193,7 +1196,7 @@ func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{
 			Y: p,
 		}
 		return pub, nil
-	case ECDSA:
+	case SM2, ECDSA:
 		paramsData := keyData.Algorithm.Parameters.FullBytes
 		namedCurveOID := new(asn1.ObjectIdentifier)
 		rest, err := asn1.Unmarshal(paramsData, namedCurveOID)
