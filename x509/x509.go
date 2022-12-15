@@ -1196,7 +1196,7 @@ func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{
 			Y: p,
 		}
 		return pub, nil
-	case SM2, ECDSA:
+	case ECDSA:
 		paramsData := keyData.Algorithm.Parameters.FullBytes
 		namedCurveOID := new(asn1.ObjectIdentifier)
 		rest, err := asn1.Unmarshal(paramsData, namedCurveOID)
@@ -1230,6 +1230,30 @@ func parsePublicKey(algo PublicKeyAlgorithm, keyData *publicKeyInfo) (interface{
 			return nil, errors.New("x509: wrong Ed25519 public key size")
 		}
 		return ed25519.PublicKey(asn1Data), nil
+	case SM2:
+		paramsData := keyData.Algorithm.Parameters.FullBytes
+		namedCurveOID := new(asn1.ObjectIdentifier)
+		rest, err := asn1.Unmarshal(paramsData, namedCurveOID)
+		if err != nil {
+			return nil, err
+		}
+		if len(rest) != 0 {
+			return nil, errors.New("x509: trailing data after ECDSA parameters")
+		}
+		namedCurve := namedCurveFromOID(*namedCurveOID)
+		if namedCurve == nil {
+			return nil, errors.New("x509: unsupported elliptic curve")
+		}
+		x, y := elliptic.Unmarshal(namedCurve, asn1Data)
+		if x == nil {
+			return nil, errors.New("x509: failed to unmarshal elliptic curve point")
+		}
+		pub := &sm2.PublicKey{
+			Curve: namedCurve,
+			X:     x,
+			Y:     y,
+		}
+		return pub, nil
 	default:
 		return nil, nil
 	}
